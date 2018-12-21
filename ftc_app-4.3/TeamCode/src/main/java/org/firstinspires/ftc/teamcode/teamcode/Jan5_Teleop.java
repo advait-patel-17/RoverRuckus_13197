@@ -37,8 +37,8 @@ public class Jan5_Teleop extends LinearOpMode {
     private DcMotor intake = null;
     private DcMotor intakeExtender = null;
     private DcMotor scoring = null;
-    private Servo
-    private Servo
+    private Servo Dumper1;
+    private Servo Dumper2;
     private CRServo intakeFlip1;
     private CRServo intakeFlip2;
 
