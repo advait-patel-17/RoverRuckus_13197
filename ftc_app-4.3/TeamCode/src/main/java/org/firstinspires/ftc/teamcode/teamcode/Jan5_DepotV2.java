@@ -36,7 +36,6 @@ public class Jan5_DepotV2 extends LinearOpMode{
     private DcMotor intake = null;
     private DcMotor intakeFlipper = null;
     private DcMotor intakeExtender = null;
-    private Servo samplingArm = null;
     private Servo teamMarker = null;
 
     BNO055IMU imu1;
@@ -130,7 +129,7 @@ public class Jan5_DepotV2 extends LinearOpMode{
 
         sampling();
 
-        
+
 
     }
 
