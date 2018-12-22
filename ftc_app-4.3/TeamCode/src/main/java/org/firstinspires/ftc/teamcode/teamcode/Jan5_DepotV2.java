@@ -130,31 +130,55 @@ public class Jan5_DepotV2 extends LinearOpMode{
 
         sampling();
 
+        
 
     }
 
     public void sampling(){
 
         checkForGold();
-        if (checkForGold()==1&&opModeIsActive()){
+
+        if (checkForGold()==true&&opModeIsActive()){
             strafe(0.5, 1000);
             strafe(-0.5, 1000);
             sleep(500);
             telemetry.addData("Gold Status", "Moved");
             telemetry.update();
 
+            moveWithEncoders(0.5, 1700);
+            sleep(500);
         }
 
         else {
             telemetry.addData("Status", "No gold here, moving to next position");
             telemetry.update();
-        }
+            moveWithEncoders(0.5, 600);
+            sleep(500);
+            checkForGold();
+            if (checkForGold()==true&&opModeIsActive()){
+                strafe(0.5, 1000);
+                strafe(-0.5, 1000);
+                sleep(500);
+                telemetry.addData("Gold Status", "Moved");
+                telemetry.update();
 
-        moveWithEncoders(0.5, 700);
-        sleep(500);
+                moveWithEncoders(0.5, 700);
+                sleep(500);
+            }
+
+            else{
+                telemetry.addData("Gold Status", "No gold here, moving to next position");
+                telemetry.update();
+                moveWithEncoders(0.5, 700);
+                sleep(300);
+                strafe(0.5, 1000);
+                strafe(-0.5, 1000);
+                sleep(300);
+            }
+        }
     }
 
-    public int checkForGold(){
+    public boolean checkForGold(){
         if (opModeIsActive()) {
             // Activate Tensor Flow Object Detection.
             if (tfod != null) {
@@ -162,9 +186,9 @@ public class Jan5_DepotV2 extends LinearOpMode{
             }
         }
 
-        int mineralPosition = 0;
+        boolean mineralPosition = false;
         int counter = 0;
-        while (opModeIsActive() && counter<=10 && mineralPosition==0) {
+        while (opModeIsActive() && counter<=10 && mineralPosition==false) {
             if (tfod != null) {
                 // getUpdatedRecognitions() will return null if no new information is available since
                 // the last time that call was made.
@@ -182,7 +206,7 @@ public class Jan5_DepotV2 extends LinearOpMode{
                             }
                             if (goldMineralX != -1) {
                                 telemetry.addData("Gold Status", "Detected");
-                                mineralPosition = 1;
+                                mineralPosition = true;
                             }
                             else{
                                 telemetry.addData("Gold Status", "Not Detected");

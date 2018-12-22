@@ -37,8 +37,7 @@ public class Jan5_Teleop extends LinearOpMode {
     private DcMotor intake = null;
     private DcMotor intakeExtender = null;
     private DcMotor scoring = null;
-    private Servo Dumper1 = null;
-    private Servo Dumper2 = null;
+    private Servo dumper = null;
     private CRServo intakeFlip1 = null;
     private CRServo intakeFlip2 = null;
 
@@ -77,9 +76,28 @@ public class Jan5_Teleop extends LinearOpMode {
             leftBackDrive.setPower(v3/shift);
             rightBackDrive.setPower(v4/shift);
 
-            hangingMotor.setPower(gamepad2.left_stick_y);
+            scoring.setPower(gamepad2.left_stick_y);
             intake.setPower(gamepad2.left_trigger-gamepad2.right_trigger);
-            intakeExtender.setPower(gamepad2.right_stick_y/2);
+            intakeFlip2.setPower(gamepad2.right_stick_y);
+            intakeFlip1.setPower(gamepad2.right_stick_y);
+            intakeExtender.setPower(gamepad1.left_trigger-gamepad1.right_trigger);
+
+            if (gamepad2.dpad_up){
+                hangingMotor.setPower(1);
+            }
+            else if (gamepad2.dpad_down){
+                hangingMotor.setPower(-1);
+            }
+            else {
+                hangingMotor.setPower(0);
+            }
+
+            if (gamepad2.a){
+                dumper.setPosition(0);
+            }
+            else if (gamepad2.b){
+                dumper.setPosition(0.3);
+            }
 
 
             if (gamepad1.right_bumper){
@@ -116,6 +134,7 @@ public class Jan5_Teleop extends LinearOpMode {
         scoring = hardwareMap.get(DcMotor.class, "Scoring");
         intakeFlip1 = hardwareMap.get(CRServo.class, "IntakeFlip1");
         intakeFlip2 = hardwareMap.get(CRServo.class, "IntakeFlip2");
+        dumper = hardwareMap.get(Servo.class, "Dumper");
 
 
 
@@ -135,6 +154,7 @@ public class Jan5_Teleop extends LinearOpMode {
         hangingMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeExtender.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        scoring.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         leftBackDrive.setPower(0);
@@ -146,6 +166,7 @@ public class Jan5_Teleop extends LinearOpMode {
         hangingMotor.setPower(0);
         intakeFlip1.setPower(0);
         intakeFlip2.setPower(0);
+        scoring.setPower(0);
     }
 
 }

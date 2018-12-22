@@ -16,13 +16,13 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 @TeleOp
 //@Disabled
 public class TestProgram extends LinearOpMode {
-    Servo teamMarker;
+    Servo dumper;
     public void runOpMode(){
-        teamMarker = hardwareMap.get(Servo.class, "TeamMarker");
+        dumper = hardwareMap.get(Servo.class, "dumper");
         waitForStart();
         while(opModeIsActive()){
-            teamMarker.setPosition(gamepad1.right_trigger);
-            telemetry.addData("Position", teamMarker.getPosition());
+            dumper.setPosition(gamepad1.right_trigger);
+            telemetry.addData("Position", dumper.getPosition());
             telemetry.update();
         }
     }
