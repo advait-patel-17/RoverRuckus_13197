@@ -197,7 +197,7 @@ public class Jan5_Depot extends LinearOpMode{
                                     telemetry.addData("Gold Mineral Position", "Right");
                                     mineralPosition = 1;
                                 } else {
-                                    telemetry.addData("Gold Mineral Position", "Defaulting Right");
+                                    telemetry.addData("Gold Mineral Position", "Defaulting Left");
                                     mineralPosition = 3;
                                 }
                             }

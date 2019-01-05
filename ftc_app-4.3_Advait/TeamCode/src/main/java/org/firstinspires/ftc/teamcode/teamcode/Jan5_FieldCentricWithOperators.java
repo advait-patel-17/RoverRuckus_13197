@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teamcode;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -8,6 +10,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 
 /**
@@ -23,9 +30,9 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Jan5_Teleop", group="Linear Opmode")
+@TeleOp(name="FieldCentric", group="Linear Opmode")
 //@Disabled
-public class Jan5_Teleop extends LinearOpMode {
+public class Jan5_FieldCentricWithOperators extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -41,6 +48,9 @@ public class Jan5_Teleop extends LinearOpMode {
     private CRServo intakeFlip1 = null;
     private CRServo intakeFlip2 = null;
 
+    BNO055IMU imu;
+    Orientation angles;
+
 
     @Override
     public void runOpMode() throws InterruptedException{
@@ -50,9 +60,10 @@ public class Jan5_Teleop extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-       initMotors();
+        initMotors();
+        initIMU();
 
-       double shift = 1;
+        double shift = 1;
 
 
 
@@ -60,12 +71,15 @@ public class Jan5_Teleop extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
+
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
+            double fieldAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle;
             double r = Math.hypot(gamepad1.left_stick_x, -gamepad1.left_stick_y);
-            double robotAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - Math.PI / 4;
-            double rightX = gamepad1.right_stick_x*0.75;
+            double robotAngle = Math.atan2(-gamepad1.left_stick_y, gamepad1.left_stick_x) - (Math.PI / 4) - fieldAngle;
+            double rightX = gamepad1.right_stick_x;
             final double v1 = Range.clip(r * Math.cos(robotAngle) + rightX, -1, 1);
             final double v2 = Range.clip(r * Math.sin(robotAngle) - rightX, -1, 1);
             final double v3 = Range.clip(r * Math.sin(robotAngle) + rightX, -1, 1);
@@ -172,5 +186,27 @@ public class Jan5_Teleop extends LinearOpMode {
         intakeFlip2.setPower(0);
         scoring.setPower(0);
     }
+
+    public void initIMU(){
+        // Initialize the hardware variables. Note that the strings used here as parameters
+
+        //Initialization initi = new Initialization();
+        // initi.IMUinit();
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.loggingEnabled = true;
+        parameters.loggingTag = "IMU";
+        parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+
+        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
+        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
+        // and named "imu".
+        imu = hardwareMap.get(BNO055IMU.class, "imu 2");
+        imu.initialize(parameters);
+        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
+    }
+
 
 }

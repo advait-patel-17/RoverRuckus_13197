@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -26,7 +25,7 @@ import java.util.List;
 
 @Autonomous
 //@Disabled
-public class Jan5_DepotV2 extends LinearOpMode{
+public class Jan5_CraterAdvait extends LinearOpMode{
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -102,93 +101,24 @@ public class Jan5_DepotV2 extends LinearOpMode{
             telemetry.addData("Sorry!", "This device is not compatible with TFOD");
         }
 
+
         /* Wait for the game to begin */
         telemetry.addData("Status", "Initialized. Good to go!");
         telemetry.update();
         waitForStart();
         runtime.reset();
-        //hangingMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //hangingMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-/*        hangingMotor.setPower(1);
-        sleep(5500);
+        hangingMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        hangingMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        hangingMotor.setPower(-1);
+        sleep(10500);
         hangingMotor.setPower(0);
-*/
+
         sleep(500);
 
         strafe(0.5, 450);
         sleep(300);
+        moveWithEncoders(-0.3, 500);
 
-        moveWithEncoders(0.5, 300);
-        sleep(300);
-
-        IMUTurn(90, 0.3, -0.3, 1);
-        sleep(300);
-
-        telemetry.addData("Status", "Done Turning.");
-        telemetry.update();
-
-        moveWithEncoders(0.3, 700);
-        sleep(300);
-
-        sampling();
-
-
-
-    }
-
-    public void sampling(){
-
-        checkForGold();
-
-
-        if (checkForGold()&&opModeIsActive()){
-            strafe(0.5, 2000);
-            strafe(-0.5, 1000);
-            sleep(500);
-            telemetry.addData("Gold Status", "Moved");
-            telemetry.update();
-
-            moveWithEncoders(0.5, 1700);
-            sleep(500);
-        }
-
-        else {
-            telemetry.addData("Status", "No gold here, moving to next position");
-            telemetry.update();
-            IMUTurn(30, 0.3, -0.3, 1);
-            sleep(500);
-
-            if (checkForGold()&&opModeIsActive()){
-                telemetry.addData("Status", "Found Gold");
-                telemetry.update();
-                IMUTurn(-30, -0.3, 0.3, 1);
-                sleep(500);
-                strafe(0.5, 1000);
-                moveWithEncoders(0.5, 700);
-                sleep(500);
-                strafe(0.5, 1000);
-                strafe(-0.5, 1000);
-                sleep(500);
-                telemetry.addData("Gold Status", "Moved");
-                telemetry.update();
-            }
-
-            else{
-                telemetry.addData("Gold Status", "No gold here, moving to next position");
-                telemetry.update();
-                IMUTurn(-30, -0.3, 0.3, 1);
-                strafe(0.5, 1000);
-                moveWithEncoders(0.5, 700);
-                sleep(300);
-                strafe(0.5, 1000);
-                strafe(-0.5, 1000);
-                moveWithEncoders(0.5, 2500);
-                sleep(300);
-            }
-        }
-    }
-
-    public boolean checkForGold(){
         if (opModeIsActive()) {
             // Activate Tensor Flow Object Detection.
             if (tfod != null) {
@@ -196,9 +126,9 @@ public class Jan5_DepotV2 extends LinearOpMode{
             }
         }
 
-        boolean mineralPosition = false;
+        int mineralPosition = 0;
         int counter = 0;
-        while (opModeIsActive() && counter<=10 && !mineralPosition) {
+        while (opModeIsActive() && mineralPosition==0 && counter<=10) {
             if (tfod != null) {
                 // getUpdatedRecognitions() will return null if no new information is available since
                 // the last time that call was made.
@@ -206,20 +136,26 @@ public class Jan5_DepotV2 extends LinearOpMode{
                 List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                 if (updatedRecognitions != null) {
                     telemetry.addData("# Object Detected", updatedRecognitions.size());
-                    if (updatedRecognitions.size() == 1) {
+                    if (updatedRecognitions.size() == 2) {
                         int goldMineralX = -1;
-                        //int silverMineral1X = -1;
+                        int silverMineral1X = -1;
                         //int silverMineral2X = -1;
                         for (Recognition recognition : updatedRecognitions) {
                             if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
                                 goldMineralX = (int) recognition.getLeft();
+                            } else {
+                                silverMineral1X = (int) recognition.getLeft();
                             }
-                            if (goldMineralX != -1) {
-                                telemetry.addData("Gold Status", "Detected");
-                                mineralPosition = true;
-                            }
-                            else{
-                                telemetry.addData("Gold Status", "Not Detected");
+                            if (goldMineralX != -1 && silverMineral1X != -1) {
+                                if (goldMineralX < silverMineral1X) {
+                                    telemetry.addData("Gold Mineral Position", "Center");
+                                    mineralPosition = 2;
+                                } else if (goldMineralX > silverMineral1X) {
+                                    telemetry.addData("Gold Mineral Position", "Right");
+                                    mineralPosition = 1;
+                                } else {
+                                    telemetry.addData("Gold Mineral Position", "Defaulting Left");
+                                }
                             }
                         }
                     }
@@ -230,8 +166,112 @@ public class Jan5_DepotV2 extends LinearOpMode{
             counter++;
             sleep(500);
         }
-        return mineralPosition;
-    }
+
+        if (tfod!=null){
+            tfod.shutdown();
+        }
+
+        moveWithEncoders(0.5, 400);
+        sleep(300);
+
+        switch (mineralPosition){
+            case 1:
+                strafe(0.5, 400);
+                sleep(300);
+                intakeFlipper1.setPower(-1);
+                intakeFlipper2.setPower(-1);
+                sleep(1000);
+                intakeFlipper1.setPower(0);
+                intakeFlipper2.setPower(0);
+                intake.setPower(-1);
+                moveWithEncoders(0.5, 700);
+                sleep(500);
+                intake.setPower(0);
+                sleep(300);
+                intakeFlipper1.setPower(1);
+                intakeFlipper2.setPower(1);
+                sleep(1200);
+                intakeFlipper1.setPower(0);
+                intakeFlipper2.setPower(0);
+                moveWithEncoders(-0.5, 700);
+                sleep(300);
+                IMUTurn(-90, 0.3, -0.3, 3);
+                sleep(500);
+                moveWithEncoders(0.5, 1700);
+            case 2:
+                strafe(-0.5, 600);
+                sleep(300);
+                intakeFlipper1.setPower(-1);
+                intakeFlipper2.setPower(-1);
+                sleep(1000);
+                intakeFlipper1.setPower(0);
+                intakeFlipper2.setPower(0);
+                intake.setPower(-1);
+                moveWithEncoders(0.5, 500);
+                sleep(500);
+                intake.setPower(0);
+                sleep(300);
+                intakeFlipper1.setPower(1);
+                intakeFlipper2.setPower(1);
+                sleep(1200);
+                intakeFlipper1.setPower(0);
+                intakeFlipper2.setPower(0);
+                moveWithEncoders(-0.5, 600);
+                IMUTurn(-90, 0.3, -0.3, 3);
+                moveWithEncoders(-0.5, 1000);
+            default:
+                strafe(-0.5, 1200);
+                sleep(300);
+                intakeFlipper1.setPower(-1);
+                intakeFlipper2.setPower(-1);
+                sleep(1000);
+                intakeFlipper1.setPower(0);
+                intakeFlipper2.setPower(0);
+                intake.setPower(-1);
+                moveWithEncoders(0.5, 700);
+                sleep(500);
+                intake.setPower(0);
+                sleep(500);
+                intakeFlipper1.setPower(1);
+                intakeFlipper2.setPower(1);
+                sleep(1200);
+                intakeFlipper1.setPower(0);
+                intakeFlipper2.setPower(0);
+                moveWithEncoders(-0.5, 700);
+                IMUTurn(-90, 0.3, -0.3, 3);
+        }
+
+/*        moveWithEncoders(-0.5, 400);
+        sleep(300);
+
+        IMUTurn(45, -0.2, -0.6, 3);
+        sleep(300);
+
+        strafe(-0.5, 300);
+
+        moveWithEncoders(-0.5, 1200);
+        sleep(300);
+
+        teamMarker.setPosition(0);
+        sleep(800);
+
+        moveWithEncoders(0.5, 2300);
+        teamMarker.setPosition(0.5);
+
+        sleep(500);
+
+        intakeFlipper1.setPower(-1);
+        intakeFlipper2.setPower(-1);
+        sleep(1000);
+        intakeFlipper1.setPower(0);
+        intakeFlipper2.setPower(0);
+
+        telemetry.addData("Status", "All done!");
+        telemetry.update();
+
+        sleep(10000);
+*/    }
+
 
     public void initMotors(){
         leftBackDrive  = hardwareMap.get(DcMotor.class, "BackLeft");
@@ -317,6 +357,7 @@ public class Jan5_DepotV2 extends LinearOpMode{
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
         tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_GOLD_MINERAL, LABEL_SILVER_MINERAL);
+        tfodParameters.minimumConfidence = 0.75;
     }
 
     public void moveWithEncoders(double motorPower, int sleepTime){
@@ -441,8 +482,8 @@ public class Jan5_DepotV2 extends LinearOpMode{
         }
 
         stopDrivetrain();
-
     }
+
     public void stopDrivetrain(){
         leftBackDrive.setPower(0);
         leftFrontDrive.setPower(0);

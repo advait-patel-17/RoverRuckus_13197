@@ -43,7 +43,7 @@ public class PIDTest extends LinearOpMode {
         //Initialization initi = new Initialization();
        // initi.IMUinit();
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
         parameters.loggingEnabled = true;
@@ -55,7 +55,7 @@ public class PIDTest extends LinearOpMode {
         // and named "imu".
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
-        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS);
         //initi.DcMotorFourWheel();
         leftBackDrive  = hardwareMap.get(DcMotor.class, "BackLeft");
         rightBackDrive = hardwareMap.get(DcMotor.class, "BackRight");
@@ -92,24 +92,17 @@ public class PIDTest extends LinearOpMode {
         double leftPower;
         double rightPower;
 
-        leftBackDrive.setPower(power);
-        leftFrontDrive.setPower(power);
-        rightBackDrive.setPower(power);
-        rightFrontDrive.setPower(power);
 
-        while (opModeIsActive()) {
-            currentValue = angles.firstAngle;
+        while (opModeIsActive() && getRuntime()<=10) {
+            currentValue = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.RADIANS).firstAngle;
             error = target - currentValue;
-            integral = integral + error;
+            integral += error;
             derivative = error - lastError;
             output = (error*kp)+(integral*ki)+(derivative*kd);
 
-            output = output/50;
 
-
-
-            leftPower = Range.clip(power + output, -1.0, 1.0);
-            rightPower = Range.clip(power - output, -1.0, 1.0);
+            leftPower = Range.clip(power - output, -1.0, 1.0);
+            rightPower = Range.clip(power + output, -1.0, 1.0);
 
             leftFrontDrive.setPower(leftPower);
             leftBackDrive.setPower(leftPower);
@@ -129,8 +122,7 @@ public class PIDTest extends LinearOpMode {
             telemetry.addData("Left Power", leftPower);
             telemetry.addData("Right Power", rightPower);
             telemetry.update();
-            idle();
-
+            sleep(100);
 
         }
 
