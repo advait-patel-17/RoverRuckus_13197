@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.Autonomous.CurrentAuto;
+package org.firstinspires.ftc.teamcode.Autonomous.PastAuto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -8,8 +9,8 @@ import org.firstinspires.ftc.teamcode.Robot.Robot;
 import org.firstinspires.ftc.teamcode.Robot.Vision;
 
 @Autonomous
-//@Disabled
-public class RegionalDepot extends LinearOpMode{
+@Disabled
+public class PastStateDepot extends LinearOpMode{
 
     // call the hardware from the Robot class
     Robot robot = new Robot();
@@ -33,6 +34,7 @@ public class RegionalDepot extends LinearOpMode{
 
         //Wait for Driver to press PLAY
         waitForStart();
+        robot.runtime.reset();
 
 
         //Lower Down from latch
@@ -76,20 +78,24 @@ public class RegionalDepot extends LinearOpMode{
         sleep(100);
 
         //strafe over a little past the silver mineral
-        robot.strafe(-0.5, 500, this);
+        robot.strafe(-0.5, 550, this);
         sleep(100);
 
         //bring lead screw down
-        //robot.hangingMotor.setPower(-1);
         //go forward just a little bit more
-        robot.moveWithEncoders(0.3, 300, this);
+        robot.moveWithEncoders(0.3, 100, this);
 
-        robot.reorientIMU(0, -0.3, 0.3, 0.5, this, 0.9, 0.02, 0.008);
+        robot.reorientIMU(0, -0.3, 0.3, 0.5, this, 0.9, 0.02, 0);
 
         //extend intake to put team marker in depot
+
+        robot.hangingMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.hangingMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.hangingMotor.setPower(-1);
         robot.intakeExtender.setPower(1);
         sleep(1350);
         robot.intakeExtender.setPower(0);
+        robot.hangingMotor.setPower(0);
 
         //bring down servo halfway first so the team marker doesn't fly out
         robot.intakeFlip1.setPosition(0.55);
@@ -103,8 +109,8 @@ public class RegionalDepot extends LinearOpMode{
         sleep(100);
 
         //outtake team marker
-        robot.intake.setPower(-1);
-        sleep(1300);
+        robot.intake.setPower(1);
+        sleep(1000);
         robot.intake.setPower(0);
 
         //stop bringing lead screw down
@@ -116,17 +122,11 @@ public class RegionalDepot extends LinearOpMode{
 
         //retract intake
         robot.intakeExtender.setPower(-1);
-        sleep(1000);
+        robot.moveWithEncoders(-0.3, 400, this);
+        sleep(600);
         sleep(350);
         robot.intakeExtender.setPower(0);
         sleep(100);
-
-        //move back a little
-        robot.moveWithEncoders(-0.3, 400, this);
-        sleep(100);
-
-        //strafe over to the right mineral
-        robot.strafe(0.5, 400, this);
 
         boolean isGold = vision.checkForGold(this);
         telemetry.addData("Gold?", isGold);
@@ -141,10 +141,10 @@ public class RegionalDepot extends LinearOpMode{
             // bring down intake
             robot.intakeFlip1.setPosition(0.3);
             robot.intakeFlip2.setPosition(0.3);
-            robot.intake.setPower(1);
+            robot.intake.setPower(-1);
             // move forward to intake gold
             robot.moveWithEncoders(0.3, 700, this);
-            sleep(500);
+            sleep(300);
 
             robot.intake.setPower(0);
             sleep(100);
@@ -158,14 +158,14 @@ public class RegionalDepot extends LinearOpMode{
 
             //robot.moveWithEncoders(-0.5, 400, this);
             //use a PID algorithm to turn 90 deg towards the crater
-            robot.reorientIMU(90, -0.3, 0.3, 0.05, this, 0.9, 0.01, 0.025);
+            robot.reorientIMU(90, -0.4, 0.4, 0.5, this, 0.9, 0.01, 0.025);
             sleep(100);
             robot.moveWithEncoders(0.5, 500, this);
         }
 
         else {
             //line up the camera with the center mineral
-            robot.strafe(0.5, 800, this);
+            robot.strafe(0.5, 850, this);
             //check to see if it is the gold
             isGold = vision.checkForGold(this);
             if (isGold){
@@ -177,11 +177,11 @@ public class RegionalDepot extends LinearOpMode{
                 //bring intake down
                 robot.intakeFlip1.setPosition(0.3);
                 robot.intakeFlip2.setPosition(0.3);
-                robot.intake.setPower(1);
+                robot.intake.setPower(-1);
 
                 //move forward to intake gold
                 robot.moveWithEncoders(0.3, 700, this);
-                sleep(500);
+                sleep(300);
 
 
                 robot.intake.setPower(0);
@@ -198,11 +198,12 @@ public class RegionalDepot extends LinearOpMode{
                 //use a PID algorithm to turn 90 deg towards the crater
                 robot.reorientIMU(90, -0.3, 0.3, 0.5, this, 0.9, 0.01, 0.025);
                 sleep(100);
+                robot.strafe(0.3, 300, this);
                 robot.moveWithEncoders(0.5, 1000, this);
             }
             else{//if it's not the center or the right mineral, then it has to be the left one
                 //line up with the left mineral
-                robot.strafe(-0.5, 1400, this);
+                robot.strafe(-0.5, 1500, this);
 
                 robot.moveWithEncoders(-0.5, 300, this);
                 sleep(100);
@@ -210,11 +211,11 @@ public class RegionalDepot extends LinearOpMode{
                 //bring intake down
                 robot.intakeFlip1.setPosition(0.3);
                 robot.intakeFlip2.setPosition(0.3);
-                robot.intake.setPower(1);
+                robot.intake.setPower(-1);
 
                 //move forward to intake mineral
                 robot.moveWithEncoders(0.3, 700, this);
-                sleep(500);
+                sleep(300);
 
                 robot.intake.setPower(0);
                 sleep(100);
@@ -233,9 +234,11 @@ public class RegionalDepot extends LinearOpMode{
         }
 
         //go into crater and bring down intake
-        robot.moveWithEncoders(0.6, 1400, this);
-        robot.intakeFlip1.setPosition(0.5);
-        robot.intakeFlip2.setPosition(0.5);
+        robot.moveWithEncoders(0.6, 1100, this);
+        robot.intakeFlip1.setPosition(0.6);
+        robot.intakeFlip2.setPosition(0.6);
+        telemetry.addData("Runtime", getRuntime());
+        telemetry.update();
         sleep(20000);
     }
 }

@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Robot.Robot;
+import org.firstinspires.ftc.teamcode.Robot.RobotV2;
 
 
 /**
@@ -22,11 +21,11 @@ import org.firstinspires.ftc.teamcode.Robot.Robot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="State_Teleop", group="Linear Opmode")
-@Disabled
-public class StateTeleop extends LinearOpMode {
+@TeleOp(name="Bradley_Teleop", group="Linear Opmode")
+//@Disabled
+public class BradleyTeleop extends LinearOpMode {
 
-Robot robot = new Robot();
+RobotV2 robot = new RobotV2();
 ElapsedTime runtime = new ElapsedTime();
 
     @Override
@@ -46,6 +45,8 @@ ElapsedTime runtime = new ElapsedTime();
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
+
+        robot.dumper.setPosition(0.075);
 
         while (opModeIsActive()){
 
@@ -93,7 +94,7 @@ ElapsedTime runtime = new ElapsedTime();
             }
 
             if (gamepad1.right_bumper){
-                shift = 0.4;
+                shift = 0.3;
             }
 
             else {
@@ -102,23 +103,28 @@ ElapsedTime runtime = new ElapsedTime();
 
             robot.scoring.setPower(0.8*gamepad2.left_stick_y);
 
-            robot.dumper.setPower(Range.clip(0.35*gamepad2.right_stick_y, -0.35, 0.25));
-
-            robot.intake.setPower(0.6*(gamepad2.right_trigger-gamepad2.left_trigger));
+            robot.intake.setPower(0.9*(gamepad2.right_trigger-gamepad2.left_trigger));
 
             robot.intakeExtender.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
 
+            if (gamepad2.x){
+                robot.dumper.setPosition(0.45);
+            }
+            else if (gamepad2.b){
+                robot.dumper.setPosition(0.073);
+            }
+            else if (gamepad2.y){
+                robot.dumper.setPosition(0.28);
+            }
+
             if (gamepad2.left_bumper){
-                robot.intakeFlip1.setPosition(0.55);
-                robot.intakeFlip2.setPosition(0.55);
+                robot.intakeFlip1.setPosition(0.65);
             }
             else if (gamepad2.right_bumper){
-                robot.intakeFlip1.setPosition(0.3);
-                robot.intakeFlip2.setPosition(0.3);
-            }
+                robot.intakeFlip1.setPosition(0.44);
+                }
             else if (gamepad2.a){
-                robot.intakeFlip1.setPosition(0.74);
-                robot.intakeFlip2.setPosition(0.74);
+                robot.intakeFlip1.setPosition(0.85);
             }
 
             if (gamepad2.dpad_up){
@@ -137,5 +143,7 @@ ElapsedTime runtime = new ElapsedTime();
             telemetry.addData("Intake position", robot.intakeFlip1.getPosition());
             telemetry.update();
         }
+
+        robot.intake.setPower(0);
     }
 }

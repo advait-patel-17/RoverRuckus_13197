@@ -1,6 +1,7 @@
-package org.firstinspires.ftc.teamcode.Autonomous.CurrentAuto;
+package org.firstinspires.ftc.teamcode.Autonomous.PastAuto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -8,8 +9,8 @@ import org.firstinspires.ftc.teamcode.Robot.Robot;
 import org.firstinspires.ftc.teamcode.Robot.Vision;
 
 @Autonomous
-//@Disabled
-public class RegionalCrater extends LinearOpMode{
+@Disabled
+public class StateCrater extends LinearOpMode{
 
 
     Robot robot = new Robot();
@@ -158,8 +159,8 @@ public class RegionalCrater extends LinearOpMode{
         //go to the wall
         robot.moveWithEncoders(0.7, 800, this);
         // turn towards the depot
-        robot.reorientIMU(135, -0.3, 0.3, 1, this,
-                0.95, 0.002, 0.025);
+        robot.reorientIMU(135, -0.5, 0.5, 0.5, this,
+                0.9, 0, 0);
 
         //strafe into the wall to square up
         robot.strafe(0.6, 1200, this);
@@ -180,7 +181,7 @@ public class RegionalCrater extends LinearOpMode{
         robot.intakeFlip2.setPosition(0.3);
 
         //outtake team marker
-        robot.intake.setPower(-1);
+        robot.intake.setPower(1);
         sleep(1500);
         robot.intake.setPower(0);
 

@@ -18,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 
 @Disabled
-public class Robot extends LinearOpMode{
+public class RobotV2 extends LinearOpMode{
     // Declare OpMode members.
     public ElapsedTime runtime = new ElapsedTime();
     public DcMotor leftBackDrive = null;
@@ -27,12 +27,11 @@ public class Robot extends LinearOpMode{
     public DcMotor rightFrontDrive = null;
 
     public DcMotor hangingMotor = null;
-    public DcMotor intake = null;
+    public CRServo intake = null;
     public DcMotor intakeExtender = null;
     public DcMotor scoring = null;
-    public CRServo dumper = null;
+    public Servo dumper = null;
     public Servo intakeFlip1 = null;
-    public Servo intakeFlip2 = null;
 
     public HardwareMap hwMap = null;
 
@@ -79,18 +78,16 @@ public class Robot extends LinearOpMode{
     //initialize all the robot hardware
     public void initRobot(HardwareMap ahwmap){
         hwMap = ahwmap;
-        dSensor1 = hwMap.get(DistanceSensor.class, "DistanceSensor1");
         leftBackDrive = hwMap.get(DcMotor.class, "BackLeft");
         rightBackDrive = hwMap.get(DcMotor.class, "BackRight");
         leftFrontDrive = hwMap.get(DcMotor.class, "FrontLeft");
         rightFrontDrive = hwMap.get(DcMotor.class, "FrontRight");
         hangingMotor = hwMap.get(DcMotor.class, "HangingArm");
-        intake = hwMap.get(DcMotor.class, "Intake");
+        intake = hwMap.get(CRServo.class, "Intake");
         intakeExtender = hwMap.get(DcMotor.class, "IntakeExtend");
         scoring = hwMap.get(DcMotor.class, "Scoring");
         intakeFlip1 = hwMap.get(Servo.class, "IntakeFlip1");
-        intakeFlip2 = hwMap.get(Servo.class, "IntakeFlip2");
-        dumper = hwMap.get(CRServo.class, "Dumper");
+        dumper = hwMap.get(Servo.class, "Dumper");
 
 
 
@@ -100,15 +97,14 @@ public class Robot extends LinearOpMode{
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+        intake.setDirection(CRServo.Direction.FORWARD);
         intakeFlip1.setDirection(Servo.Direction.FORWARD);
-        intakeFlip2.setDirection(Servo.Direction.REVERSE);
 
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         hangingMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeExtender.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         scoring.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 

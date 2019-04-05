@@ -42,9 +42,7 @@ public class OutreachTeleop extends LinearOpMode {
         // step (using the FTC Robot Controller app on the phone).
         leftBackDrive  = hardwareMap.get(DcMotor.class, "LeftBack");
         rightBackDrive = hardwareMap.get(DcMotor.class, "RightBack");
-        leftFrontDrive = hardwareMap.get(DcMotor.class, "LeftFront");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "RightFront");
-
+        
         // Most robots need the motor on one side to be reversed to drive forward
         // Reverse the motor that runs backwards when connected directly to the battery
         leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);

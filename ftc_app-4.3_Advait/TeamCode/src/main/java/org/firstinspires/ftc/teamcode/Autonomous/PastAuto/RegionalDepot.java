@@ -1,20 +1,21 @@
-package org.firstinspires.ftc.teamcode.Autonomous.CurrentAuto;
+package org.firstinspires.ftc.teamcode.Autonomous.PastAuto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Robot.Robot;
-import org.firstinspires.ftc.teamcode.Robot.VisionV2;
+import org.firstinspires.ftc.teamcode.Robot.Vision;
 
 @Autonomous
-//@Disabled
-public class RegionalDepotSuperMax extends LinearOpMode{
+@Disabled
+public class RegionalDepot extends LinearOpMode{
 
     // call the hardware from the Robot class
     Robot robot = new Robot();
     //call the objects from the Vision class
-    VisionV2 vision = new VisionV2();
+    Vision vision = new Vision();
 
     //Having all of our hardware and functions in a separate class allows us
     //to more easily organize our code. This way, whenever we need to use a function,
@@ -62,34 +63,13 @@ public class RegionalDepotSuperMax extends LinearOpMode{
                 vision.tfod.activate();
             }
         }
-        //bring lead screw down
-        //robot.hangingMotor.setPower(-1);
-        boolean isGold = vision.checkForGold(this);
-        telemetry.addData("Gold?", isGold);
-        telemetry.update();
-        //robot.hangingMotor.setPOwer(0);
-        byte mineralPosition;
-        if (isGold&&opModeIsActive()){
-            double degreesToGold = vision.degreesToGold(this);
-            if (degreesToGold>0&&opModeIsActive()){
-                mineralPosition = 1;
-            }
-            else{
-                mineralPosition = 2;
-            }
-        }
-        else {
-            mineralPosition = 3;
-        }
-        telemetry.addData("Mineral Position", mineralPosition);
-        telemetry.update();
 
 
-/*
         //set intake servos to a certain position so they don't come down
         //while the robot moves
         robot.intakeFlip1.setPosition(0.73);
         robot.intakeFlip2.setPosition(0.73);
+
 
 
         //go forward
@@ -97,13 +77,15 @@ public class RegionalDepotSuperMax extends LinearOpMode{
         sleep(100);
 
         //strafe over a little past the silver mineral
-        robot.strafe(-0.5, 550, this);
+        robot.strafe(-0.5, 500, this);
         sleep(100);
 
         //bring lead screw down
         //robot.hangingMotor.setPower(-1);
         //go forward just a little bit more
         robot.moveWithEncoders(0.3, 300, this);
+
+        robot.reorientIMU(0, -0.3, 0.3, 0.5, this, 0.9, 0.02, 0.008);
 
         //extend intake to put team marker in depot
         robot.intakeExtender.setPower(1);
@@ -143,104 +125,118 @@ public class RegionalDepotSuperMax extends LinearOpMode{
         //move back a little
         robot.moveWithEncoders(-0.3, 400, this);
         sleep(100);
-        robot.reorientIMU(0, -0.3, 0.3, 0.5, this,
-                0.9, 0.04, 0);
 
-        switch (mineralPosition){
-            case 1:
-                robot.strafe(0.5, 1000, this);
-                robot.moveWithEncoders(-0.3, 400, this);
-                sleep(100);
+        //strafe over to the right mineral
+        robot.strafe(0.5, 400, this);
 
-                robot.intakeFlip1.setPosition(0.3);
-                robot.intakeFlip2.setPosition(0.3);
-                sleep(100);
-                robot.intake.setPower(1);
-                robot.moveWithEncoders(0.3, 700, this);
-                sleep(500);
+        boolean isGold = vision.checkForGold(this);
+        telemetry.addData("Gold?", isGold);
+        telemetry.update();
+        if (isGold){
+            // line up with the gold
+            robot.strafe(0.5, 400, this);
+            sleep(100);
+            robot.moveWithEncoders(-0.3, 300, this);
 
-                robot.intakeFlip1.setPosition(0.78);
-                robot.intakeFlip2.setPosition(0.78);
+ //           robot.reorientIMU(0, -0.3, 0.3, 0.5, this, 0.9, 0.05, 0);
+            // bring down intake
+            robot.intakeFlip1.setPosition(0.3);
+            robot.intakeFlip2.setPosition(0.3);
+            robot.intake.setPower(1);
+            // move forward to intake gold
+            robot.moveWithEncoders(0.3, 700, this);
+            sleep(500);
 
-                robot.strafe(-0.5, 800, this);
-                sleep(100);
-                break;
+            robot.intake.setPower(0);
+            sleep(100);
 
-            case 2:
-                robot.strafe(0.5, 400, this);
-                robot.moveWithEncoders(-0.3, 400, this);
-                sleep(100);
+            //bring intake back up
+            robot.intakeFlip1.setPosition(0.75);
+            robot.intakeFlip2.setPosition(0.75);
 
-                robot.intakeFlip1.setPosition(0.3);
-                robot.intakeFlip2.setPosition(0.3);
-                sleep(100);
-                robot.intake.setPower(1);
-                robot.moveWithEncoders(0.3, 700, this);
-                sleep(500);
 
-                robot.intakeFlip1.setPosition(0.78);
-                robot.intakeFlip2.setPosition(0.78);
-                break;
+            robot.moveWithEncoders(-0.3, 600, this);
 
-            case 3:
-
-                robot.strafe(-0.5, 700, this);
-                robot.moveWithEncoders(-0.3, 400, this);
-                sleep(100);
-                robot.reorientIMU(0, -0.3, 0.3, 0.5, this,
-                        0.9, 0.03, 0);
-                robot.intakeFlip1.setPosition(0.3);
-                robot.intakeFlip2.setPosition(0.3);
-                sleep(100);
-                robot.intake.setPower(1);
-                robot.moveWithEncoders(0.3, 700, this);
-                sleep(500);
-
-                robot.intakeFlip1.setPosition(0.78);
-                robot.intakeFlip2.setPosition(0.78);
-
-                robot.strafe(0.5, 1000, this);
-            default:
-                robot.strafe(0.5, 400, this);
-                robot.moveWithEncoders(-0.3, 400, this);
-                sleep(100);
-
-                robot.intakeFlip1.setPosition(0.3);
-                robot.intakeFlip2.setPosition(0.3);
-                sleep(100);
-                robot.intake.setPower(1);
-                robot.moveWithEncoders(0.3, 700, this);
-                sleep(500);
-
-                robot.intakeFlip1.setPosition(0.78);
-                robot.intakeFlip2.setPosition(0.78);
-                break;
+            //robot.moveWithEncoders(-0.5, 400, this);
+            //use a PID algorithm to turn 90 deg towards the crater
+            robot.reorientIMU(90, -0.3, 0.3, 0.05, this, 0.9, 0.01, 0.025);
+            sleep(100);
+            robot.moveWithEncoders(0.5, 500, this);
         }
 
+        else {
+            //line up the camera with the center mineral
+            robot.strafe(0.5, 800, this);
+            //check to see if it is the gold
+            isGold = vision.checkForGold(this);
+            if (isGold){
+                //line up the intake with the mineral
+                robot.strafe(0.5, 400, this);
+                robot.moveWithEncoders(-0.3, 300, this);
+                //robot.reorientIMU(0, -0.3, 0.3, 0.5, this, 0.9, 0.05, 0);
 
-        robot.intakeFlip1.setPosition(0.55);
-        robot.intakeFlip2.setPosition(0.55);
+                //bring intake down
+                robot.intakeFlip1.setPosition(0.3);
+                robot.intakeFlip2.setPosition(0.3);
+                robot.intake.setPower(1);
 
-        robot.moveWithEncoders(-0.4, 700, this);
-        sleep(100);
+                //move forward to intake gold
+                robot.moveWithEncoders(0.3, 700, this);
+                sleep(500);
 
-        robot.scoring.setPower(1);
-        sleep(2700);
-        robot.scoring.setPower(0);
 
-        robot.dumper.setPosition(0.89);
-        sleep(500);
+                robot.intake.setPower(0);
+                sleep(100);
 
-        robot.scoring.setPower(-1);
-        robot.dumper.setPosition(0.41);
-        robot.moveWithEncoders(0.5, 500, this);
-        robot.reorientIMU(90, -0.3, 0.3, 0.5, this, 0.9, 0.05, 0.03);
-        robot.scoring.setPower(0);
-        robot.intakeFlip1.setPosition(0.75);
-        robot.intakeFlip2.setPosition(0.75);
-        robot.moveWithEncoders(0.7, 1100, this);
-        robot.intakeFlip1.setPosition(0.4);
-        robot.intakeFlip2.setPosition(0.4);
-        sleep(10000);
-    */}
+                //bring intake back up
+                robot.intakeFlip1.setPosition(0.75);
+                robot.intakeFlip2.setPosition(0.75);
+                sleep(100);
+
+
+                robot.moveWithEncoders(-0.3, 600, this);
+
+                //use a PID algorithm to turn 90 deg towards the crater
+                robot.reorientIMU(90, -0.3, 0.3, 0.5, this, 0.9, 0.01, 0.025);
+                sleep(100);
+                robot.moveWithEncoders(0.5, 1000, this);
+            }
+            else{//if it's not the center or the right mineral, then it has to be the left one
+                //line up with the left mineral
+                robot.strafe(-0.5, 1400, this);
+
+                robot.moveWithEncoders(-0.5, 300, this);
+                sleep(100);
+
+                //bring intake down
+                robot.intakeFlip1.setPosition(0.3);
+                robot.intakeFlip2.setPosition(0.3);
+                robot.intake.setPower(1);
+
+                //move forward to intake mineral
+                robot.moveWithEncoders(0.3, 700, this);
+                sleep(500);
+
+                robot.intake.setPower(0);
+                sleep(100);
+
+                //bring intake back up
+                robot.intakeFlip1.setPosition(0.75);
+                robot.intakeFlip2.setPosition(0.75);
+                sleep(100);
+
+                //robot.strafe(0.5, 500, this);
+                robot.moveWithEncoders(-0.3, 600, this);
+                //use a PID algorithm to turn 90 deg towards the crater
+                robot.reorientIMU(90, -0.3, 0.3, 0.5, this,
+                        0.9, 0.01, 0.025);
+            }
+        }
+
+        //go into crater and bring down intake
+        robot.moveWithEncoders(0.6, 1400, this);
+        robot.intakeFlip1.setPosition(0.5);
+        robot.intakeFlip2.setPosition(0.5);
+        sleep(20000);
+    }
 }

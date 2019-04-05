@@ -92,7 +92,7 @@ public class VisionV2 extends LinearOpMode{
 
         boolean mineralPosition = false;
         double startTime = om.getRuntime();
-        while (om.opModeIsActive() && om.getRuntime()-startTime<1.5 && !mineralPosition) {
+        while (om.opModeIsActive() && om.getRuntime()-startTime<2 && !mineralPosition) {
             if (tfod != null) {
                 //get readings from the phone camera
                 List<Recognition> recog = getGold();
@@ -101,7 +101,7 @@ public class VisionV2 extends LinearOpMode{
                     for (Recognition r : recog){
                         //if it is gold and it is below a certain line on the camera,
                         //confirm that it is gold
-                        if (r.getLabel().equals(LABEL_GOLD_MINERAL) && r.getBottom()>600){
+                        if (r.getLabel().equals(LABEL_GOLD_MINERAL) && r.getBottom()>500){
                             mineralPosition = true;
                         }
                     }
@@ -126,7 +126,7 @@ public class VisionV2 extends LinearOpMode{
                         //om.telemetry.addData("GoldTop", r.getTop());
                         //om.telemetry.addData("GoldBottom", r.getBottom());
                         //om.telemetry.update();
-                        if (r.getLabel().equals(LABEL_GOLD_MINERAL)&&r.getBottom() > 600) {
+                        if (r.getLabel().equals(LABEL_GOLD_MINERAL)&&r.getBottom() > 500) {
                             if (r.getBottom() > lowestY) {
                                 lowestY = r.getBottom();
                                 centerX = (r.getLeft() + r.getRight()) / 2;
